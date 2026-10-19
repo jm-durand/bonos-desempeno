@@ -10,6 +10,13 @@
 USE BonusTest;
 GO
 
+/* Los índices filtrados exigen QUOTED_IDENTIFIER ON. SSMS lo activa por
+   defecto, pero sqlcmd lo pone OFF: se fija aquí para que el script
+   funcione igual sin importar desde dónde se ejecute. */
+SET ANSI_NULLS ON;
+SET QUOTED_IDENTIFIER ON;
+GO
+
 CREATE TABLE dbo.Bonus (
     BonusId        INT IDENTITY(1,1) NOT NULL,
     DepartmentCode CHAR(5)           NOT NULL,
