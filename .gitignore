@@ -1,0 +1,8 @@
+# .NET
+backend/**/bin/
+backend/**/obj/
+backend/.vs/
+*.user
+
+# Enunciado de la prueba (documento de la empresa, no parte de la entrega)
+*.pdf
