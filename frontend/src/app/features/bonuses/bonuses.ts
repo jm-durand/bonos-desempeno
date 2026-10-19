@@ -66,6 +66,17 @@ export class Bonuses {
     this.load(1);
   }
 
+  protected async payBonus(bonus: BonusListItem): Promise<void> {
+    const confirmed = await this.confirmDialog().open(
+      `¿Pagar el bono de ${bonus.employeeFullName} del periodo ${bonus.period}? El bruto se distribuirá entre sus proyectos.`,
+    );
+    if (!confirmed) return;
+    this.bonusApi.pay(bonus.bonusId).subscribe(() => {
+      this.notification.show('success', 'Bono pagado.');
+      this.reloadCurrentPage();
+    });
+  }
+
   protected async cancelBonus(bonus: BonusListItem): Promise<void> {
     const confirmed = await this.confirmDialog().open(
       `¿Anular el bono de ${bonus.employeeFullName} del periodo ${bonus.period}?`,

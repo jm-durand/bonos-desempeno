@@ -70,6 +70,12 @@ public class BonusRepository(AppDbContext context) : IBonusRepository
     public async Task<Bonus?> FindBonusAsync(int bonusId, CancellationToken cancellationToken) =>
         await context.Bonuses.FirstOrDefaultAsync(x => x.BonusId == bonusId && !x.IsDeleted, cancellationToken);
 
+    public async Task<IReadOnlyList<EmployeeProjectHours>> GetProjectHoursAsync(string departmentCode, int employeeNumber, CancellationToken cancellationToken) =>
+        await context.EmployeeProjectHours.AsNoTracking()
+            .Where(x => x.DepartmentCode == departmentCode && x.EmployeeNumber == employeeNumber)
+            .OrderBy(x => x.EmployeeProjectHoursId)
+            .ToListAsync(cancellationToken);
+
     public async Task AddAsync(Bonus bonus, CancellationToken cancellationToken) =>
         await context.Bonuses.AddAsync(bonus, cancellationToken);
 

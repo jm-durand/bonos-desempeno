@@ -67,6 +67,14 @@
                 type="button"
                 class="btn btn-small"
                 [disabled]="bonus.bonusStateCode !== RegisteredState"
+                (click)="payBonus(bonus)"
+              >
+                Pagar
+              </button>
+              <button
+                type="button"
+                class="btn btn-small"
+                [disabled]="bonus.bonusStateCode !== RegisteredState"
                 (click)="cancelBonus(bonus)"
               >
                 Anular

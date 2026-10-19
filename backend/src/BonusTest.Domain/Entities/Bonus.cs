@@ -25,4 +25,5 @@ public class Bonus
     public BonusType BonusType { get; set; } = null!;
     public BonusReason Reason { get; set; } = null!;
     public State BonusState { get; set; } = null!;
+    public List<BonusPaymentDetail> PaymentDetails { get; set; } = [];
 }

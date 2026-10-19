@@ -31,6 +31,10 @@ export class BonusApi {
     return this.http.post<{ bonusId: number }>(this.baseUrl, request);
   }
 
+  pay(bonusId: number): Observable<void> {
+    return this.http.post<void>(`${this.baseUrl}/${bonusId}/pay`, null);
+  }
+
   cancel(bonusId: number): Observable<void> {
     return this.http.put<void>(`${this.baseUrl}/${bonusId}/cancel`, null);
   }

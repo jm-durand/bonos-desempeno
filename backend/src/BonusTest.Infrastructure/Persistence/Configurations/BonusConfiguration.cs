@@ -29,5 +29,19 @@ public class BonusConfiguration : IEntityTypeConfiguration<Bonus>
         builder.HasOne(x => x.BonusState)
             .WithMany()
             .HasForeignKey(x => x.BonusStateCode);
+
+        builder.HasMany(x => x.PaymentDetails)
+            .WithOne()
+            .HasForeignKey(x => x.BonusId);
+    }
+}
+
+public class BonusPaymentDetailConfiguration : IEntityTypeConfiguration<BonusPaymentDetail>
+{
+    public void Configure(EntityTypeBuilder<BonusPaymentDetail> builder)
+    {
+        builder.ToTable("BonusPaymentDetail").HasKey(x => x.BonusPaymentDetailId);
+        builder.Property(x => x.Hours).HasPrecision(8, 2);
+        builder.Property(x => x.Amount).HasPrecision(16, 2);
     }
 }

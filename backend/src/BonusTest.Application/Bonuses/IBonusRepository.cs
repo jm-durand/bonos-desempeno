@@ -10,6 +10,7 @@ public interface IBonusRepository
     Task<bool> IsReasonActiveAsync(string reasonCode, CancellationToken cancellationToken);
     Task<bool> HasActiveBonusInPeriodAsync(string departmentCode, int employeeNumber, string period, CancellationToken cancellationToken);
     Task<Bonus?> FindBonusAsync(int bonusId, CancellationToken cancellationToken);
+    Task<IReadOnlyList<EmployeeProjectHours>> GetProjectHoursAsync(string departmentCode, int employeeNumber, CancellationToken cancellationToken);
     Task AddAsync(Bonus bonus, CancellationToken cancellationToken);
     Task SaveChangesAsync(CancellationToken cancellationToken);
 }

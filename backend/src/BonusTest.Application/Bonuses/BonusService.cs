@@ -72,6 +72,29 @@ public class BonusService(IBonusRepository repository)
         await repository.SaveChangesAsync(cancellationToken);
     }
 
+    public async Task PayAsync(int bonusId, string? userCode, CancellationToken cancellationToken)
+    {
+        var user = RequireUser(userCode);
+        var bonus = await GetRegisteredBonusAsync(bonusId, "pagar", cancellationToken);
+
+        var projects = await repository.GetProjectHoursAsync(bonus.DepartmentCode, bonus.EmployeeNumber, cancellationToken);
+        if (projects.Count == 0 || projects.Sum(x => x.Hours) <= 0)
+            throw new BusinessException("EMPLOYEE_HAS_NO_PROJECTS", "El empleado no tiene horas de proyecto para distribuir el bono.");
+
+        var amounts = BonusCalculator.Distribute(bonus.GrossAmount, projects.Select(x => x.Hours).ToList());
+        bonus.PaymentDetails = projects.Select((project, index) => new BonusPaymentDetail
+        {
+            ProjectName = project.ProjectName,
+            Hours = project.Hours,
+            Amount = amounts[index],
+        }).ToList();
+
+        bonus.BonusStateCode = BonusStates.Paid;
+        MarkModified(bonus, user);
+        // Detalle y cambio de estado viajan en un único SaveChanges: EF los envuelve en una sola transacción.
+        await repository.SaveChangesAsync(cancellationToken);
+    }
+
     public async Task DeleteAsync(int bonusId, string? userCode, CancellationToken cancellationToken)
     {
         var user = RequireUser(userCode);
