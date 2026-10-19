@@ -1,0 +1,109 @@
+<dialog #dialog class="modal">
+  <header class="modal-header">
+    <h3>Nuevo bono</h3>
+    <button type="button" class="modal-close" aria-label="Cerrar" (click)="close()">×</button>
+  </header>
+
+  <form class="employee-search" [formGroup]="searchForm" (ngSubmit)="searchEmployee()">
+    <label>
+      Área
+      <select formControlName="departmentCode">
+        <option value="" disabled>Selecciona</option>
+        @for (department of departments(); track department.departmentCode) {
+          <option [value]="department.departmentCode">{{ department.departmentName }}</option>
+        }
+      </select>
+      @if (searchForm.controls.departmentCode.touched && searchForm.controls.departmentCode.invalid) {
+        <span class="field-error">Selecciona el área.</span>
+      }
+    </label>
+
+    <label>
+      N° de empleado
+      <input type="number" formControlName="employeeNumber" placeholder="101" />
+      @if (searchForm.controls.employeeNumber.touched && searchForm.controls.employeeNumber.invalid) {
+        <span class="field-error">Ingresa el número.</span>
+      }
+    </label>
+
+    <button type="submit" class="btn btn-primary" [disabled]="searching()">
+      {{ searching() ? 'Buscando…' : 'Buscar' }}
+    </button>
+  </form>
+
+  @if (employee(); as foundEmployee) {
+    <section class="employee-card">
+      <div><span class="label">Nombre</span>{{ foundEmployee.fullName }}</div>
+      <div><span class="label">Fecha de ingreso</span>{{ foundEmployee.hireDate | date: 'dd/MM/yyyy' }}</div>
+      <div><span class="label">Sueldo mensual</span>{{ foundEmployee.monthlySalary | number: '1.2-2' }}</div>
+      <div><span class="label">Retención</span>{{ foundEmployee.taxRate | number: '1.2-2' }} %</div>
+    </section>
+
+    <form class="bonus-form" [formGroup]="form" (ngSubmit)="save()">
+      <div class="form-grid">
+        <label>
+          Periodo
+          <input type="month" formControlName="period" [max]="currentPeriod" />
+          @if (form.controls.period.touched && form.controls.period.invalid) {
+            <span class="field-error">Selecciona el periodo.</span>
+          }
+        </label>
+
+        <label>
+          Tipo de bono
+          <select formControlName="bonusTypeId">
+            @for (type of bonusTypes(); track type.bonusTypeId) {
+              <option [ngValue]="type.bonusTypeId">{{ type.bonusTypeDescription }}</option>
+            }
+          </select>
+        </label>
+
+        <label>
+          {{ valueLabel() }}
+          <input type="number" formControlName="bonusValue" step="0.01" min="0" />
+          @if (form.controls.bonusValue.touched && form.controls.bonusValue.errors; as errors) {
+            <span class="field-error">
+              @if (errors['required']) {
+                Ingresa el valor.
+              } @else if (errors['min']) {
+                Debe ser mayor a 0.
+              } @else if (errors['maxPercentage']) {
+                El porcentaje máximo es 100.
+              } @else if (errors['maxSalary']) {
+                No puede superar el sueldo mensual.
+              }
+            </span>
+          }
+        </label>
+
+        <label>
+          Motivo
+          <select formControlName="reasonCode">
+            <option value="" disabled>Selecciona</option>
+            @for (reason of reasons(); track reason.reasonCode) {
+              <option [value]="reason.reasonCode">{{ reason.reasonDescription }}</option>
+            }
+          </select>
+          @if (form.controls.reasonCode.touched && form.controls.reasonCode.invalid) {
+            <span class="field-error">Selecciona el motivo.</span>
+          }
+        </label>
+      </div>
+
+      @if (preview(); as calculatedPreview) {
+        <section class="preview">
+          <div><span class="label">Bruto</span>{{ calculatedPreview.gross | number: '1.2-2' }}</div>
+          <div><span class="label">Retención</span>{{ calculatedPreview.tax | number: '1.2-2' }}</div>
+          <div><span class="label">Neto</span><strong>{{ calculatedPreview.net | number: '1.2-2' }}</strong></div>
+        </section>
+      }
+
+      <footer class="modal-actions">
+        <button type="button" class="btn" (click)="close()">Cancelar</button>
+        <button type="submit" class="btn btn-primary" [disabled]="saving()">
+          {{ saving() ? 'Guardando…' : 'Guardar' }}
+        </button>
+      </footer>
+    </form>
+  }
+</dialog>

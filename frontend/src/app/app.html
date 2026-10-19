@@ -2,12 +2,15 @@
   <span class="brand">Recursos Humanos · Back office</span>
 </header>
 
-@if (notification.message(); as message) {
-  <div [class]="'notification notification-' + message.type" role="alert">
-    <span>{{ message.text }}</span>
-    <button type="button" class="notification-close" aria-label="Cerrar" (click)="notification.clear()">×</button>
-  </div>
-}
+<div
+  #notificationBox
+  popover="manual"
+  [class]="'notification notification-' + (notification.message()?.type ?? '')"
+  role="alert"
+>
+  <span>{{ notification.message()?.text }}</span>
+  <button type="button" class="notification-close" aria-label="Cerrar" (click)="notification.clear()">×</button>
+</div>
 
 <main class="content">
   <router-outlet />

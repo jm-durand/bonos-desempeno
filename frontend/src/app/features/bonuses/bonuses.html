@@ -1,13 +1,13 @@
 <section class="card">
   <header class="card-header">
     <h2>Bonos de desempeño</h2>
-    <button type="button" class="btn btn-primary" disabled>Nuevo registro</button>
+    <button type="button" class="btn btn-primary" (click)="openRegisterModal()">Nuevo registro</button>
   </header>
 
   <div class="filters">
     <label>
       Área
-      <select>
+      <select [(ngModel)]="filters.departmentCode">
         <option value="">Todas</option>
         @for (department of departments(); track department.departmentCode) {
           <option [value]="department.departmentCode">{{ department.departmentName }}</option>
@@ -16,18 +16,119 @@
     </label>
 
     <label>
+      N° de empleado
+      <input type="number" [(ngModel)]="filters.employeeNumber" placeholder="Todos" />
+    </label>
+
+    <label>
+      Periodo
+      <input type="month" [(ngModel)]="filters.period" />
+    </label>
+
+    <label>
       Estado
-      <select>
+      <select [(ngModel)]="filters.bonusStateCode">
         <option value="">Todos</option>
         @for (state of bonusStates(); track state.stateCode) {
           <option [value]="state.stateCode">{{ state.stateDescription }}</option>
         }
       </select>
     </label>
+
+    <div class="filter-actions">
+      <button type="button" class="btn btn-primary" (click)="search()" [disabled]="loading()">Buscar</button>
+      <button type="button" class="btn" (click)="clearFilters()" [disabled]="loading()">Limpiar</button>
+    </div>
   </div>
 
-  <p class="placeholder">
-    Los combos ya consumen <code>GET /api/v1/Catalog</code>. Implementa aquí el listado paginado,
-    las acciones por fila y el modal de registro descritos en el enunciado.
-  </p>
+  <div class="table-wrapper">
+    <table>
+      <thead>
+        <tr>
+          <th>Acciones</th>
+          <th>Estado</th>
+          <th>Periodo</th>
+          <th>Área</th>
+          <th>N°</th>
+          <th>Nombre</th>
+          <th>Tipo</th>
+          <th class="number">Monto / %</th>
+          <th>Motivo</th>
+          <th class="number">Bruto</th>
+          <th class="number">Retención</th>
+          <th class="number">Neto</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (bonus of page()?.data; track bonus.bonusId) {
+          <tr>
+            <td class="actions">
+              <button
+                type="button"
+                class="btn btn-small"
+                [disabled]="bonus.bonusStateCode !== RegisteredState"
+                (click)="cancelBonus(bonus)"
+              >
+                Anular
+              </button>
+              <button
+                type="button"
+                class="btn btn-small btn-danger"
+                [disabled]="bonus.bonusStateCode !== RegisteredState"
+                (click)="deleteBonus(bonus)"
+              >
+                Eliminar
+              </button>
+            </td>
+            <td><span class="badge" [class]="'badge state-' + bonus.bonusStateCode">{{ bonus.bonusStateDescription }}</span></td>
+            <td>{{ bonus.period }}</td>
+            <td>{{ bonus.departmentName }}</td>
+            <td>{{ bonus.employeeNumber }}</td>
+            <td>{{ bonus.employeeFullName }}</td>
+            <td>{{ bonus.bonusTypeDescription }}</td>
+            <td class="number">
+              {{ bonus.bonusValue | number: '1.2-2' }}@if (bonus.bonusTypeId === PercentageType) { %
+              }
+            </td>
+            <td>{{ bonus.reasonDescription }}</td>
+            <td class="number">{{ bonus.grossAmount | number: '1.2-2' }}</td>
+            <td class="number">{{ bonus.taxAmount | number: '1.2-2' }}</td>
+            <td class="number">{{ bonus.netAmount | number: '1.2-2' }}</td>
+          </tr>
+        } @empty {
+          <tr>
+            <td colspan="12" class="empty">{{ loading() ? 'Cargando…' : 'Sin resultados.' }}</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+
+  @if (page(); as currentPage) {
+    <footer class="pagination">
+      <span>{{ currentPage.totalRecords }} registros</span>
+      <div class="pagination-controls">
+        <button
+          type="button"
+          class="btn"
+          [disabled]="loading() || currentPage.pageNumber <= 1"
+          (click)="goToPage(currentPage.pageNumber - 1)"
+        >
+          ‹ Anterior
+        </button>
+        <span>Página {{ currentPage.pageNumber }} de {{ currentPage.totalPages || 1 }}</span>
+        <button
+          type="button"
+          class="btn"
+          [disabled]="loading() || currentPage.pageNumber >= currentPage.totalPages"
+          (click)="goToPage(currentPage.pageNumber + 1)"
+        >
+          Siguiente ›
+        </button>
+      </div>
+    </footer>
+  }
 </section>
+
+<app-bonus-register-modal [departments]="departments()" (saved)="onBonusSaved()" />
+<app-confirm-dialog />
